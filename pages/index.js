@@ -75,9 +75,9 @@ export default function BookingForm() {
       Delivery Date: ${formData.feesAndCharges?.addOns}
 
       Terms & Conditions:
-      Session time starts counting from the scheduled time. Shoots
-      ends at the expected time as noted on the booking forms Extra
-      minute added to shoot time attracts a fee of #700 per minute and 7k for each extra picture
+      Session time starts counting from the scheduled time. Shoot
+      ends at the expected time as noted on the booking form. Extra
+      minute added to shoot time attracts a fee of #700 per minute and ₦7000 for each extra picture
   
       Agreement:
       I/we do hereby agree to pay a booking deposit of ${formData.clientInfo?.amount} naira. 
@@ -86,6 +86,9 @@ export default function BookingForm() {
       
       Signee: ${formData.clientInfo?.name}
       Date: ${formData.clientInfo?.date}
+
+      Thank You!
+      We appreciate you choosing GlobalPerks to capture your moments. Your support means the world!
     `;
   
     try {
@@ -320,9 +323,9 @@ export default function BookingForm() {
               <p>23 Nsefik Eyo Close, Calabar</p>
               <h3 className="font-semibold mt-4 mb-2">Terms & Conditions:</h3>
               <p className="max-w-[50%] text-center font-bold">
-                Session time starts counting from the scheduled time. Shoots
-                ends at the expected time as noted on the booking forms Extra
-                minute added to shoot time attracts a fee of ₦700 per minute and 7k for each extra picture
+                Session time starts counting from the scheduled time. Shoot
+                ends at the expected time as noted on the booking form. Extra
+                minute added to shoot time attracts a fee of ₦700 per minute and ₦7000 for each extra picture
               </p>
             </div>
             <div className="text-left">
@@ -367,6 +370,10 @@ export default function BookingForm() {
               <p className="flex flex-col justify-start mt-4">
                 Date: {formData.clientInfo?.date}
               </p>
+            </div>
+            <div className=" mt-4">
+            Thank You!
+            We appreciate you choosing <span className="font-[600]">GlobalPerks</span> to capture your moments. Your support means the world!
             </div>
 
             <div className="mt-6 flex justify-end gap-4">
