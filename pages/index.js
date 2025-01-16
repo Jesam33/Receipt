@@ -174,6 +174,7 @@ export default function BookingForm() {
             <input
               {...register("sessionInfo.date", { required: true })}
               type="text"
+              placeholder="Shoot Date"
               className="p-3 border border-gray-300 rounded"
             />
             <div className="flex flex-col  gap-3">
