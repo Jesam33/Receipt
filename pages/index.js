@@ -239,7 +239,7 @@ export default function BookingForm() {
             Delivery Date:
             <input
               {...register("feesAndCharges.addOns")}
-              type="date"
+              type="text"
               placeholder="Delivery Date"
               className="p-3 border border-gray-300 rounded"
             />
