@@ -69,7 +69,7 @@ export default function BookingForm() {
       Balance: ₦${formData.feesAndCharges?.balance}
       Delivery Date: ${formData.feesAndCharges?.addOns}
 
-      <strong>Terms & Conditions:</strong>
+      Terms & Conditions:
       Session time starts counting from the scheduled time. Shoots
       ends at the expected time as noted on the booking forms Extra
       minute added to shoot time attracts a fee of #700 per minute
@@ -173,7 +173,7 @@ export default function BookingForm() {
             />
             <input
               {...register("sessionInfo.date", { required: true })}
-              type="date"
+              type="text"
               className="p-3 border border-gray-300 rounded"
             />
             <div className="flex flex-col  gap-3">
