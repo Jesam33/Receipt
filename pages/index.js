@@ -1,114 +1,375 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+"use client";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { useForm } from "react-hook-form";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { useState } from "react";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export default function BookingForm() {
+  const { register, handleSubmit, reset } = useForm();
+  const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [formData, setFormData] = useState(null);
 
-export default function Home() {
+  const onSubmit = (data) => {
+    setFormData(data); // Set form data for modal display
+    setModalOpen(true); // Open the modal
+  };
+
+  const downloadPdf = async () => {
+    const modalElement = document.getElementById("modal-content");
+
+    if (!modalElement) return;
+
+    // Hide the buttons before taking the screenshot
+    const buttons = modalElement.querySelectorAll("button");
+    buttons.forEach((button) => {
+      button.style.display = "none"; // Hide button
+    });
+
+    const canvas = await html2canvas(modalElement);
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF();
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("booking-summary.pdf");
+
+    // Show the buttons again after the screenshot
+    buttons.forEach((button) => {
+      button.style.display = ""; // Restore button visibility
+    });
+  };
+
+  const confirmAndSend = async () => {
+    setLoading(true);
+    setMessage("");
+  
+    const emailContent = `
+      Booking Summary:
+      Client Info:
+      Name: ${formData.clientInfo?.name}
+      Phone: ${formData.clientInfo?.phone}
+      Email: ${formData.clientInfo?.email}
+      City: ${formData.clientInfo?.city}
+  
+      Session Info:
+      Type: ${formData.sessionInfo?.type}
+      Date: ${formData.sessionInfo?.date}
+      Start Time: ${formData.sessionInfo?.startTime}
+      End Time: ${formData.sessionInfo?.endTime}
+      Number of Photos: ${formData.sessionInfo?.photos}
+      Number of People: ${formData.sessionInfo?.people}
+  
+      Fees & Charges:
+      Session Fee: ${formData.feesAndCharges?.sessionFee}
+      Tax: ${formData.feesAndCharges?.tax}
+      Balance: ${formData.feesAndCharges?.balance}
+      Delivery Date: ${formData.feesAndCharges?.addOns}
+  
+      Agreement:
+      I/we do hereby agree to pay a booking deposit of ${formData.clientInfo?.amount} naira. 
+      I understand this fee is non-refundable and that the balance must be paid prior to or on the day of the photo session. 
+      All parties agree to the terms stated above and hereby accept the amounts charged.
+      
+      Signee: ${formData.clientInfo?.name}
+      Date: ${formData.clientInfo?.date}
+    `;
+  
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emailContent, // Send the email content
+          recipientEmail: formData.clientInfo?.email, // Send the client's email address
+        }),
+      });
+  
+      if (response.ok) {
+        alert("Email sent successfully!");
+        reset();
+        setModalOpen(false); // Close the modal
+      } else {
+        setMessage("Failed to send email.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setMessage("An error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+
   return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-[80%] mx-auto p-6 bg-pink-400 border border-gray-300 rounded-lg mt-10 font-sans"
+      >
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl text-center font-bold text-gray-700 uppercase tracking-wide">
+            Booking Form
+          </h1>
+          <p>@GlobalPerks</p>
+          <p>23 Nsefik Eyo Close, Calabar</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Client Info */}
+        <section className="mb-8">
+          <h2 className="text-lg text-black font-semibold mb-4 uppercase tracking-wider">
+            Client Info
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              {...register("clientInfo.name", { required: true })}
+              type="text"
+              placeholder="Name"
+              className="p-3 border border-black rounded"
+            />
+            <input
+              {...register("clientInfo.phone", { required: true })}
+              type="tel"
+              placeholder="Phone"
+              className="p-3 border border-black rounded"
+            />
+            <input
+              {...register("clientInfo.email", { required: true })}
+              type="email"
+              placeholder="Email"
+              className="p-3 border border-black rounded"
+            />
+            <input
+              {...register("clientInfo.city")}
+              type="text"
+              placeholder="City"
+              className="p-3 border border-gray-300 rounded"
+            />
+          </div>
+        </section>
+
+        {/* Session Info */}
+        <section className="mb-8">
+          <h2 className="text-lg text-black font-semibold mb-4 uppercase tracking-wider">
+            Session Info
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              {...register("sessionInfo.type", { required: true })}
+              type="text"
+              placeholder="Type of Session"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("sessionInfo.date", { required: true })}
+              type="date"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("sessionInfo.startTime", { required: true })}
+              type="time"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("sessionInfo.endTime", { required: true })}
+              type="time"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("sessionInfo.photos")}
+              type="number"
+              placeholder="Number of Photos"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("sessionInfo.people")}
+              type="number"
+              placeholder="Number of People"
+              className="p-3 border border-gray-300 rounded"
+            />
+          </div>
+        </section>
+
+        {/* Fees & Charges */}
+        <section className="mb-8">
+          <h2 className="text-lg text-black font-semibold mb-4 uppercase tracking-wider">
+            Fees & Charges
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              {...register("feesAndCharges.sessionFee", { required: true })}
+              type="number"
+              placeholder="Session Fee"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("feesAndCharges.tax", { required: true })}
+              type="number"
+              placeholder="Tax"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("feesAndCharges.balance", { required: true })}
+              type="number"
+              placeholder="Balance"
+              className="p-3 border border-gray-300 rounded"
+            />
+            <input
+              {...register("feesAndCharges.addOns")}
+              type="date"
+              placeholder="Delivery Date"
+              className="p-3 border border-gray-300 rounded"
+            />
+          </div>
+        </section>
+
+        {/* Agreement */}
+        <section className="mb-8">
+          <p className="italic">
+            I/we do hereby agree to pay a booking deposit of{" "}
+            <span>
+              <input
+                {...register("clientInfo.amount", { required: true })}
+                type="number"
+                placeholder="Amount"
+                className="px-3 border border-black rounded"
+              />
+            </span>{" "}
+            naira I understand this fee is non-refundable and that the balance
+            must be paid prior to or on the day of the photo session. All
+            parties agree to the terms stated above and hereby accept the
+            amounts charged.
+          </p>
+          <div className="flex justify-between">
+            <p>
+              Signee FullName:{" "}
+              <input
+                {...register("clientInfo.name", { required: true })}
+                type="text"
+                placeholder="Signee"
+                className="px-3 mt-4 border border-black rounded"
+              />
+            </p>
+            <p className="flex gap-4 mt-4">
+              Date:
+              <span>
+                <input
+                  {...register("clientInfo.date", { required: true })}
+                  type="date"
+                  placeholder="Name"
+                  className="px-3 border border-black rounded"
+                />
+              </span>
+            </p>
+          </div>
+        </section>
+
+        <div className="mt-6 text-center">
+          <button
+            type="submit"
+            className="px-6 py-3 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 disabled:bg-gray-400"
+            disabled={loading}
+          >
+            {loading ? "Sending..." : "Submit Booking"}
+          </button>
+          {/* {message && <p className="mt-4 text-gray-600">{message}</p>} */}
+        </div>
+      </form>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div
+            id="modal-content"
+            className="bg-white rounded-lg overflow-y-auto w-[90%]  p-6 py-4"
+          >
+            <div className="text-center mb-4 flex flex-col items-center">
+              <h2 className="text-xl font-bold ">Booking Summary</h2>
+              <p>@GlobalPerks</p>
+              <p>23 Nsefik Eyo Close, Calabar</p>
+              <h3 className="font-semibold mt-4 mb-2">Terms & Conditions:</h3>
+              <p className="max-w-[50%] text-center font-bold">
+                Session time starts counting from the scheduled time. Shoots
+                ends at the expected time as noted on the booking forms Extra
+                minute added to shoot time attracts a fee of #700 per minute
+              </p>
+            </div>
+            <div className="text-left">
+              <div className="grid grid-cols-3 items-center">
+                <div>
+                  <h3 className="font-semibold mb-2">Client Info:</h3>
+                  <p>Name: {formData.clientInfo?.name}</p>
+                  <p>Phone: {formData.clientInfo?.phone}</p>
+                  <p>Email: {formData.clientInfo?.email}</p>
+                  <p>City: {formData.clientInfo?.city}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mt-4 mb-2">Session Info:</h3>
+                  <p>Type: {formData.sessionInfo?.type}</p>
+                  <p>Date: {formData.sessionInfo?.date}</p>
+                  <p>Start Time: {formData.sessionInfo?.startTime}</p>
+                  <p>End Time: {formData.sessionInfo?.endTime}</p>
+                  <p>Number of Photos: {formData.sessionInfo?.photos}</p>
+                  <p>Number of People: {formData.sessionInfo?.people}</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mt-4 mb-2">Fees & Charges:</h3>
+                  <p>Session Fee: ${formData.feesAndCharges?.sessionFee}</p>
+                  <p>Tax: ${formData.feesAndCharges?.tax}</p>
+                  <p>Balance: ${formData.feesAndCharges?.balance}</p>
+                  <p>Delivery Date: {formData.feesAndCharges?.addOns}</p>
+                </div>
+              </div>
+
+              <p className="italic mt-4">
+                I/we do hereby agree to pay a booking deposit of {""}
+               {formData.clientInfo?.amount} naira. I understand this fee is
+                non-refundable and that the balance must be paid prior to or on
+                the day of the photo session. All parties agree to the terms
+                stated above and hereby accept the amounts charged.
+              </p>
+              <p className="flex flex-col justify-start mt-4">
+                Signee: {formData.clientInfo?.name}
+              </p>
+              <p className="flex flex-col justify-start mt-4">
+                Date: {formData.clientInfo?.date}
+              </p>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-4">
+              <button
+                onClick={() => setModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+              >
+                Edit
+              </button>
+                <button
+            onClick={downloadPdf} // Call downloadPdf to generate PDF
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            disabled={loading} // Disable when loading
+          >
+            Download PDF
+          </button>
+              <button
+                onClick={confirmAndSend}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                disabled={loading}
+              >
+                {loading ? "Sending..." : "Confirm and Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
