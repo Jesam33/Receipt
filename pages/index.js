@@ -55,7 +55,6 @@ export default function BookingForm() {
       
       Booking Summary:
 
-
       Client Info:      
       Name: ${formData.clientInfo?.name}
       Phone: ${formData.clientInfo?.phone}
@@ -78,7 +77,7 @@ export default function BookingForm() {
       Terms & Conditions:
       Session time starts counting from the scheduled time. Shoots
       ends at the expected time as noted on the booking forms Extra
-      minute added to shoot time attracts a fee of #700 per minute
+      minute added to shoot time attracts a fee of #700 per minute and 7k for each extra picture
   
       Agreement:
       I/we do hereby agree to pay a booking deposit of ${formData.clientInfo?.amount} naira. 
@@ -323,7 +322,7 @@ export default function BookingForm() {
               <p className="max-w-[50%] text-center font-bold">
                 Session time starts counting from the scheduled time. Shoots
                 ends at the expected time as noted on the booking forms Extra
-                minute added to shoot time attracts a fee of ₦700 per minute
+                minute added to shoot time attracts a fee of ₦700 per minute and 7k for each extra picture
               </p>
             </div>
             <div className="text-left">
