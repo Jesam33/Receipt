@@ -65,10 +65,14 @@ export default function BookingForm() {
       Number of People: ${formData.sessionInfo?.people}
   
       Fees & Charges:
-      Session Fee: ${formData.feesAndCharges?.sessionFee}
-      Tax: ${formData.feesAndCharges?.tax}
-      Balance: ${formData.feesAndCharges?.balance}
+      Session Fee: ₦${formData.feesAndCharges?.sessionFee}
+      Balance: ₦${formData.feesAndCharges?.balance}
       Delivery Date: ${formData.feesAndCharges?.addOns}
+
+      <strong>Terms & Conditions:</strong>
+      Session time starts counting from the scheduled time. Shoots
+      ends at the expected time as noted on the booking forms Extra
+      minute added to shoot time attracts a fee of #700 per minute
   
       Agreement:
       I/we do hereby agree to pay a booking deposit of ${formData.clientInfo?.amount} naira. 
@@ -172,16 +176,24 @@ export default function BookingForm() {
               type="date"
               className="p-3 border border-gray-300 rounded"
             />
+            <div className="flex flex-col  gap-3">
+              <p>Start Time:</p>
             <input
               {...register("sessionInfo.startTime", { required: true })}
               type="time"
               className="p-3 border border-gray-300 rounded"
             />
+            </div>
+
+            <div className="flex flex-col  gap-3">
+              <p>End Time:</p>
             <input
               {...register("sessionInfo.endTime", { required: true })}
               type="time"
               className="p-3 border border-gray-300 rounded"
             />
+            </div>
+            
             <input
               {...register("sessionInfo.photos")}
               type="number"
@@ -191,7 +203,7 @@ export default function BookingForm() {
             <input
               {...register("sessionInfo.people")}
               type="number"
-              placeholder="Number of People"
+              placeholder="Number of Persons"
               className="p-3 border border-gray-300 rounded"
             />
           </div>
@@ -205,28 +217,33 @@ export default function BookingForm() {
           <div className="grid grid-cols-2 gap-4">
             <input
               {...register("feesAndCharges.sessionFee", { required: true })}
-              type="number"
+              type="text"
               placeholder="Session Fee"
               className="p-3 border border-gray-300 rounded"
             />
-            <input
+            {/* <input
               {...register("feesAndCharges.tax", { required: true })}
               type="number"
               placeholder="Tax"
               className="p-3 border border-gray-300 rounded"
-            />
+            /> */}
             <input
               {...register("feesAndCharges.balance", { required: true })}
-              type="number"
+              type="text"
               placeholder="Balance"
               className="p-3 border border-gray-300 rounded"
             />
+            <div className=" flex flex-col  gap-3">
+
+            Delivery Date:
             <input
               {...register("feesAndCharges.addOns")}
               type="date"
               placeholder="Delivery Date"
               className="p-3 border border-gray-300 rounded"
             />
+            </div>
+           
           </div>
         </section>
 
@@ -235,6 +252,7 @@ export default function BookingForm() {
           <p className="italic">
             I/we do hereby agree to pay a booking deposit of{" "}
             <span>
+              ₦ {" "}
               <input
                 {...register("clientInfo.amount", { required: true })}
                 type="number"
@@ -242,7 +260,7 @@ export default function BookingForm() {
                 className="px-3 border border-black rounded"
               />
             </span>{" "}
-            naira I understand this fee is non-refundable and that the balance
+             I understand this fee is non-refundable and that the balance
             must be paid prior to or on the day of the photo session. All
             parties agree to the terms stated above and hereby accept the
             amounts charged.
@@ -258,7 +276,7 @@ export default function BookingForm() {
               />
             </p>
             <p className="flex gap-4 mt-4">
-              Date:
+              Signed Date:
               <span>
                 <input
                   {...register("clientInfo.date", { required: true })}
@@ -298,7 +316,7 @@ export default function BookingForm() {
               <p className="max-w-[50%] text-center font-bold">
                 Session time starts counting from the scheduled time. Shoots
                 ends at the expected time as noted on the booking forms Extra
-                minute added to shoot time attracts a fee of #700 per minute
+                minute added to shoot time attracts a fee of ₦700 per minute
               </p>
             </div>
             <div className="text-left">
@@ -318,14 +336,14 @@ export default function BookingForm() {
                   <p>Start Time: {formData.sessionInfo?.startTime}</p>
                   <p>End Time: {formData.sessionInfo?.endTime}</p>
                   <p>Number of Photos: {formData.sessionInfo?.photos}</p>
-                  <p>Number of People: {formData.sessionInfo?.people}</p>
+                  <p>Number of Persons: {formData.sessionInfo?.people}</p>
                 </div>
 
                 <div>
                   <h3 className="font-semibold mt-4 mb-2">Fees & Charges:</h3>
-                  <p>Session Fee: ${formData.feesAndCharges?.sessionFee}</p>
-                  <p>Tax: ${formData.feesAndCharges?.tax}</p>
-                  <p>Balance: ${formData.feesAndCharges?.balance}</p>
+                  <p>Session Fee: ₦{formData.feesAndCharges?.sessionFee}</p>
+                  {/* <p>Tax: ${formData.feesAndCharges?.tax}</p> */}
+                  <p>Balance: ₦{formData.feesAndCharges?.balance}</p>
                   <p>Delivery Date: {formData.feesAndCharges?.addOns}</p>
                 </div>
               </div>

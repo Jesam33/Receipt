@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       from: 'theglobalperks@gmail.com', // Replace with your email address
       to: recipientEmail, // Use the dynamic recipient email
       subject: 'Booking Summary',
-      text: emailContent, // The content to be sent
+     text: emailContent, // The content to be sent
     };
 
     try {
