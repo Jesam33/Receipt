@@ -281,7 +281,7 @@ export default function BookingForm() {
               <span>
                 <input
                   {...register("clientInfo.date", { required: true })}
-                  type="date"
+                  type="text"
                   placeholder="Name"
                   className="px-3 border border-black rounded"
                 />
