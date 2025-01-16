@@ -49,8 +49,14 @@ export default function BookingForm() {
     setMessage("");
   
     const emailContent = `
+      THE SPACE STUDIOS
+      23 Nsefik Eyo Close, Calabar
+
+      
       Booking Summary:
-      Client Info:
+
+
+      Client Info:      
       Name: ${formData.clientInfo?.name}
       Phone: ${formData.clientInfo?.phone}
       Email: ${formData.clientInfo?.email}
